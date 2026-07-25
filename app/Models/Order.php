@@ -35,4 +35,14 @@ class Order extends Model
     {
         return $this->status->canTransitionTo($next);
     }
+
+    public function changeStatus(OrderStatus $next): void
+    {
+        if (!$this->canTransitionTo($next)) {
+            throw new \DomainException(
+                "No se puede cambiar el estado de {$this->status->label()} a {$next->label()}."
+            );
+        }
+        $this->update(['status' => $next]);
+    }
 }

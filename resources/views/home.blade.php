@@ -5,18 +5,20 @@
 @section('content')
 
     {{-- BANNER --}}
-    <section class="bg-gradient-to-r from-petfy to-petfy-dark text-white">
-        <div class="max-w-7xl mx-auto px-4 py-16 text-center">
-            <h1 class="text-4xl sm:text-5xl font-extrabold drop-shadow mb-3">
+    <section class="relative text-white overflow-hidden"
+             style="background-image: url('{{ asset('img/banner.jpg') }}'); background-size: cover; background-position: center;">
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-10 max-w-7xl mx-auto px-8 py-36 text-left sm:py-44">
+            <h1 class="text-3xl sm:text-4xl font-extrabold drop-shadow mb-3">
                 ¡Bienvenidos a PetFy Pet Shop!
             </h1>
-            <p class="text-lg text-petfy-accent font-medium">
+            <p class="text-base text-petfy-accent font-medium">
                 Todo para tu mascota en un solo lugar.
             </p>
             @guest
                 <a href="{{ route('register') }}"
                    class="mt-6 inline-block bg-petfy-accent text-petfy-dark font-bold px-6 py-3 rounded-xl hover:brightness-95 transition shadow">
-                    Crear cuenta gratis
+                    Crear cuenta
                 </a>
             @endguest
         </div>
@@ -51,12 +53,23 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($productos as $producto)
                     <div class="bg-white rounded-xl shadow hover:shadow-lg transition flex flex-col overflow-hidden">
-                        <img src="{{ asset('img/' . $producto->image) }}"
-                             alt="{{ $producto->name }}"
-                             class="h-48 w-full object-cover">
+                        <div class="w-full h-52 bg-slate-50 flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset('img/' . $producto->image) }}"
+                                 alt="{{ $producto->name }}"
+                                 class="h-full w-full object-contain">
+                        </div>
 
                         <div class="p-4 flex flex-col flex-1">
                             <h3 class="font-semibold text-slate-800">{{ $producto->name }}</h3>
+                            @if($producto->categories->isNotEmpty())
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    @foreach($producto->categories as $cat)
+                                        <span class="text-xs bg-petfy/10 text-petfy-dark px-2 py-0.5 rounded-full font-medium">
+                                            {{ $cat->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
                             <p class="text-sm text-slate-500 mt-1 flex-1 line-clamp-2">
                                 {{ $producto->description }}
                             </p>
@@ -64,10 +77,33 @@
                                 {{ $producto->formatted_price }}
                             </p>
 
-                            <a href="{{ url('/productos/' . $producto->id) }}"
-                               class="mt-3 inline-block text-center bg-petfy text-white rounded-lg py-2 hover:bg-petfy-dark transition font-medium">
-                                Ver producto
-                            </a>
+                            <div class="mt-3 flex gap-2">
+                                <a href="{{ url('/productos/' . $producto->id) }}"
+                                   class="flex-1 text-center bg-petfy text-white rounded-lg py-2 hover:bg-petfy-dark transition font-medium text-sm">
+                                    Ver producto
+                                </a>
+                                <form action="{{ route('cart.add', $producto->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" title="Agregar al carrito"
+                                            class="px-3 py-2 bg-petfy-accent text-petfy-dark rounded-lg hover:brightness-95 transition font-bold text-sm">
+                                        <i class="fa-solid fa-cart-plus"></i>
+                                    </button>
+                                </form>
+                                @auth
+                                    <form action="{{ route('wishlist.store', $producto->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" title="Agregar a wishlist"
+                                                class="px-3 py-2 bg-white border border-slate-200 text-slate-400 rounded-lg hover:text-red-400 hover:border-red-200 transition text-sm">
+                                            <i class="fa-regular fa-heart"></i>
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('login') }}" title="Agregar a wishlist"
+                                       class="px-3 py-2 bg-white border border-slate-200 text-slate-400 rounded-lg hover:text-red-400 hover:border-red-200 transition text-sm">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </a>
+                                @endauth
+                            </div>
                         </div>
                     </div>
                 @endforeach

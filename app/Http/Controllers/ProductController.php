@@ -2,49 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Muestra el catálogo de productos.
-     * Si se pasa ?categoria=slug, filtra por esa categoría.
-     */
     public function index(Request $request)
     {
         $query = Product::query()->with('categories');
 
-        // Filtrar por categoría si viene el parámetro
-        if ($request->has('categoria')) {
+        if ($request->filled('categoria')) {
             $slug = $request->get('categoria');
-            $query->whereHas('categories', function ($q) use ($slug) {
-                $q->where('slug', $slug);
-            });
+            $query->whereHas('categories', fn ($q) => $q->where('slug', $slug));
         }
 
-        // Paginado (ejemplo: 12 por página)
-        $products = $query->paginate(12);
+        $products   = $query->paginate(12);
+        $categories = Category::orderBy('name')->get();
 
-        return response()->json($products);
+        return view('productos.index', compact('products', 'categories'));
     }
 
-    /**
-     * Muestra el detalle de un producto.
-     * Aprovecha Route Model Binding.
-     */
     public function show(Product $product)
     {
-        // Cargar relaciones necesarias
         $product->load(['categories', 'reviews.user']);
 
-        // Calcular promedio de reviews
-        $averageRating = $product->averageRating();
+        $averageRating = $product->reviews()->avg('rating');
+        $canReview     = false;
+        $alreadyReviewed = false;
 
-        return response()->json([
-            'product' => $product,
-            'average_rating' => $averageRating,
-        ]);
+        if (auth()->check()) {
+            $alreadyReviewed = $product->reviews()->where('user_id', auth()->id())->exists();
+            $canReview = !$alreadyReviewed;
+        }
+
+        return view('productos.show', compact('product', 'averageRating', 'canReview', 'alreadyReviewed'));
     }
 }

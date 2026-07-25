@@ -7,90 +7,90 @@ use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
-    /**
-     * Lista todas las direcciones del usuario autenticado.
-     */
     public function index()
     {
         $addresses = auth()->user()->addresses()->get();
 
-        return response()->json($addresses);
+        return view('direcciones.index', compact('addresses'));
     }
 
-    /**
-     * Muestra el formulario de creación (si usas Blade).
-     * En APIs normalmente no se usa.
-     */
     public function create()
     {
-        return response()->json([
-            'message' => 'Formulario de creación de dirección.'
-        ]);
+        return view('direcciones.create');
     }
 
-    /**
-     * Guarda una nueva dirección para el usuario autenticado.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'street' => 'required|string|max:255',
-            'city'   => 'required|string|max:255',
-            'state'  => 'nullable|string|max:255',
-            'zip'    => 'nullable|string|max:20',
+            'recipient'   => ['required', 'string', 'max:255'],
+            'label'       => ['nullable', 'string', 'max:100'],
+            'street'      => ['required', 'string', 'max:255'],
+            'city'        => ['required', 'string', 'max:255'],
+            'state'       => ['nullable', 'string', 'max:255'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'phone'       => ['nullable', 'string', 'max:30'],
+            'is_default'  => ['boolean'],
         ]);
 
-        $address = auth()->user()->addresses()->create($validated);
+        $validated['is_default'] = $request->boolean('is_default');
 
-        return response()->json([
-            'message' => 'Dirección creada correctamente.',
-            'address' => $address,
-        ], 201);
+        if ($validated['is_default']) {
+            auth()->user()->addresses()->update(['is_default' => false]);
+        }
+
+        auth()->user()->addresses()->create($validated);
+
+        return redirect()->route('direcciones.index')
+                         ->with('success', 'Dirección agregada correctamente.');
     }
 
-    /**
-     * Muestra el formulario de edición (si usas Blade).
-     */
     public function edit(Address $address)
     {
-        $this->authorize('update', $address);
+        if ($address->user_id !== auth()->id()) {
+            abort(403);
+        }
 
-        return response()->json($address);
+        return view('direcciones.edit', compact('address'));
     }
 
-    /**
-     * Actualiza una dirección existente del usuario autenticado.
-     */
     public function update(Request $request, Address $address)
     {
-        $this->authorize('update', $address);
+        if ($address->user_id !== auth()->id()) {
+            abort(403);
+        }
 
         $validated = $request->validate([
-            'street' => 'required|string|max:255',
-            'city'   => 'required|string|max:255',
-            'state'  => 'nullable|string|max:255',
-            'zip'    => 'nullable|string|max:20',
+            'recipient'   => ['required', 'string', 'max:255'],
+            'label'       => ['nullable', 'string', 'max:100'],
+            'street'      => ['required', 'string', 'max:255'],
+            'city'        => ['required', 'string', 'max:255'],
+            'state'       => ['nullable', 'string', 'max:255'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'phone'       => ['nullable', 'string', 'max:30'],
+            'is_default'  => ['boolean'],
         ]);
+
+        $validated['is_default'] = $request->boolean('is_default');
+
+        if ($validated['is_default']) {
+            auth()->user()->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+        }
 
         $address->update($validated);
 
-        return response()->json([
-            'message' => 'Dirección actualizada correctamente.',
-            'address' => $address,
-        ]);
+        return redirect()->route('direcciones.index')
+                         ->with('success', 'Dirección actualizada correctamente.');
     }
 
-    /**
-     * Elimina una dirección del usuario autenticado.
-     */
     public function destroy(Address $address)
     {
-        $this->authorize('delete', $address);
+        if ($address->user_id !== auth()->id()) {
+            abort(403);
+        }
 
         $address->delete();
 
-        return response()->json([
-            'message' => 'Dirección eliminada correctamente.',
-        ]);
+        return redirect()->route('direcciones.index')
+                         ->with('success', 'Dirección eliminada.');
     }
 }

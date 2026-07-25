@@ -3,51 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class WishlistController extends Controller
 {
-    /**
-     * Muestra la lista de deseos del usuario autenticado.
-     */
     public function index()
     {
-        $wishlist = auth()->user()
-            ->wishlist() // relación belongsToMany
-            ->with('categories') // opcional: cargar categorías de cada producto
-            ->get();
+        /** @var User $user */
+        $user     = auth()->user();
+        $productos = $user->wishlist()->get();
 
-        return response()->json($wishlist);
+        return view('wishlist.index', compact('productos'));
     }
 
-    /**
-     * Agrega un producto a la lista de deseos.
-     * Evita duplicados con syncWithoutDetaching.
-     */
     public function store(Product $product)
     {
-        auth()->user()
-            ->wishlist()
-            ->syncWithoutDetaching([$product->id]);
+        /** @var User $user */
+        $user = auth()->user();
+        $user->wishlist()->syncWithoutDetaching([$product->id]);
 
-        return response()->json([
-            'message' => 'Producto agregado a la lista de deseos.',
-            'product' => $product,
-        ]);
+        return back()->with('success', 'Producto agregado a tu wishlist.');
     }
 
-    /**
-     * Elimina un producto de la lista de deseos.
-     */
     public function destroy(Product $product)
     {
-        auth()->user()
-            ->wishlist()
-            ->detach($product->id);
+        /** @var User $user */
+        $user = auth()->user();
+        $user->wishlist()->detach($product->id);
 
-        return response()->json([
-            'message' => 'Producto eliminado de la lista de deseos.',
-            'product' => $product,
-        ]);
+        return back()->with('success', 'Producto quitado de tu wishlist.');
     }
 }

@@ -7,15 +7,12 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    /**
-     * Muestra los productos pertenecientes a una categoría.
-     */
     public function show(Category $category): View
     {
-        $products = $category
-            ->products()
-            ->paginate(6);
+        $products    = $category->products()->with('categories')->paginate(12);
+        $categories  = Category::orderBy('name')->get();
+        $activeSlug  = $category->slug;
 
-        return view('categories.show', compact('category', 'products'));
+        return view('productos.index', compact('products', 'categories', 'activeSlug'));
     }
 }

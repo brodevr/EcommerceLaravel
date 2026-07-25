@@ -12,7 +12,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $productos = Product::where('is_active', true)
+        $productos = Product::with('categories')
+            ->where('is_active', true)
             ->latest()
             ->paginate(6);
 

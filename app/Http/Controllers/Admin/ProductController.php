@@ -3,94 +3,77 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
-use Illuminate\Http\Request;
+use App\Models\Category;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
-    /**
-     * Lista todos los productos (vista admin).
-     */
     public function index()
     {
         $products = Product::with('categories')->latest()->paginate(20);
 
-        return view('admin.products.index', compact('products'));
-        // o en API: return response()->json($products);
+        return view('admin.productos.index', compact('products'));
     }
 
-    /**
-     * Muestra el formulario de creación.
-     */
     public function create()
     {
-        return view('admin.products.create');
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.productos.create', compact('categories'));
     }
 
-    /**
-     * Guarda un nuevo producto.
-     */
     public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
 
-        // Procesar imagen si viene
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $data['image'] = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('img'), $data['image']);
         }
+
+        $categoryIds = $data['categories'];
+        unset($data['categories']);
 
         $product = Product::create($data);
+        $product->categories()->sync($categoryIds);
 
-        // Sincronizar categorías
-        if ($request->has('categories')) {
-            $product->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.products.index')
+        return redirect()->route('admin.productos.index')
                          ->with('success', 'Producto creado correctamente.');
     }
 
-    /**
-     * Muestra el formulario de edición.
-     */
     public function edit(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.productos.edit', compact('product', 'categories'));
     }
 
-    /**
-     * Actualiza un producto existente.
-     */
     public function update(UpdateProductRequest $request, Product $product)
     {
         $data = $request->validated();
 
-        // Procesar nueva imagen si viene
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $data['image'] = $request->file('image')->getClientOriginalName();
+            $request->file('image')->move(public_path('img'), $data['image']);
         }
+
+        $categoryIds = $data['categories'];
+        unset($data['categories']);
 
         $product->update($data);
+        $product->categories()->sync($categoryIds);
 
-        // Sincronizar categorías
-        if ($request->has('categories')) {
-            $product->categories()->sync($request->categories);
-        }
-
-        return redirect()->route('admin.products.index')
+        return redirect()->route('admin.productos.index')
                          ->with('success', 'Producto actualizado correctamente.');
     }
 
-    /**
-     * Elimina un producto.
-     */
     public function destroy(Product $product)
     {
         $product->delete();
 
-        return redirect()->route('admin.products.index')
+        return redirect()->route('admin.productos.index')
                          ->with('success', 'Producto eliminado correctamente.');
     }
 }
