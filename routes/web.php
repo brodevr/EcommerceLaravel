@@ -81,10 +81,15 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('productos', \App\Http\Controllers\Admin\ProductController::class);
-    Route::resource('categorias', \App\Http\Controllers\Admin\CategoryController::class);
+    Route::resource('categorias', \App\Http\Controllers\Admin\CategoryController::class)
+        ->parameters(['categorias' => 'category']);
     Route::get('/pedidos', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('pedidos.index');
     Route::get('/pedidos/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('pedidos.show');
     Route::patch('/pedidos/{order}/estado', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('pedidos.updateStatus');
+    Route::resource('usuarios', \App\Http\Controllers\Admin\UserController::class)
+        ->except(['create', 'store', 'show'])
+        ->parameters(['usuarios' => 'user']);
+    Route::get('/reportes', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reportes.index');
 });
 
 require __DIR__.'/auth.php';

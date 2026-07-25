@@ -31,6 +31,14 @@
                        class="px-3 py-1.5 rounded hover:bg-petfy/60 transition {{ request()->routeIs('admin.pedidos.*') ? 'bg-petfy/60' : '' }}">
                         <i class="fa-solid fa-clipboard-list mr-1"></i>Pedidos
                     </a>
+                    <a href="{{ route('admin.usuarios.index') }}"
+                       class="px-3 py-1.5 rounded hover:bg-petfy/60 transition {{ request()->routeIs('admin.usuarios.*') ? 'bg-petfy/60' : '' }}">
+                        <i class="fa-solid fa-users mr-1"></i>Usuarios
+                    </a>
+                    <a href="{{ route('admin.reportes.index') }}"
+                       class="px-3 py-1.5 rounded hover:bg-petfy/60 transition {{ request()->routeIs('admin.reportes.*') ? 'bg-petfy/60' : '' }}">
+                        <i class="fa-solid fa-chart-bar mr-1"></i>Reportes
+                    </a>
                 </div>
             </div>
             <div class="flex items-center gap-3">
