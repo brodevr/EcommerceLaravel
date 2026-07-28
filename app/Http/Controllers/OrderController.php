@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatus;
+use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -20,9 +21,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $order);
 
         $order->load(['items.product', 'shippingAddress']);
 
@@ -45,7 +44,7 @@ class OrderController extends Controller
         return view('checkout', compact('cart', 'addresses', 'total'));
     }
 
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
         $cart = session('cart', []);
 
@@ -55,12 +54,6 @@ class OrderController extends Controller
 
         /** @var User $user */
         $user = auth()->user();
-
-        $request->validate([
-            'address_id' => 'required|integer',
-        ], [
-            'address_id.required' => 'Tenés que elegir una dirección de envío para confirmar el pedido.',
-        ]);
 
         $address = $user->addresses()->find($request->integer('address_id'));
 
