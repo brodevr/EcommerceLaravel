@@ -28,46 +28,51 @@
             {{-- Lista de items --}}
             <div class="lg:col-span-2 space-y-4">
                 @foreach($cart as $id => $item)
-                    <div class="bg-white rounded-2xl shadow p-4 flex items-center gap-4">
-                        <img src="{{ asset('img/' . $item['image']) }}"
-                             alt="{{ $item['name'] }}"
-                             class="h-20 w-20 object-cover rounded-xl flex-shrink-0">
+                    <div class="bg-white rounded-2xl shadow p-4 flex flex-col sm:flex-row sm:items-center gap-3">
 
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-semibold text-slate-800 truncate">{{ $item['name'] }}</h3>
-                            <p class="text-petfy font-bold mt-0.5">
-                                ${{ number_format($item['price'], 2, ',', '.') }}
-                            </p>
+                        {{-- Imagen + info --}}
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <img src="{{ asset('img/' . $item['image']) }}"
+                                 alt="{{ $item['name'] }}"
+                                 class="h-16 w-16 object-cover rounded-xl flex-shrink-0">
+                            <div class="min-w-0">
+                                <h3 class="font-semibold text-slate-800 truncate">{{ $item['name'] }}</h3>
+                                <p class="text-petfy font-bold mt-0.5">
+                                    ${{ number_format($item['price'], 2, ',', '.') }}
+                                </p>
+                            </div>
                         </div>
 
-                        {{-- Selector de cantidad --}}
-                        <form action="{{ route('cart.update', $id) }}" method="POST"
-                              class="flex items-center gap-2">
-                            @csrf @method('PATCH')
-                            <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden">
-                                <button type="submit" name="quantity" value="{{ $item['quantity'] - 1 }}"
-                                        class="px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition font-bold">−</button>
-                                <span class="px-3 py-1.5 text-sm font-semibold text-slate-700 min-w-[2rem] text-center">
-                                    {{ $item['quantity'] }}
-                                </span>
-                                <button type="submit" name="quantity" value="{{ $item['quantity'] + 1 }}"
-                                        class="px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition font-bold">+</button>
-                            </div>
-                        </form>
+                        {{-- Controles: cantidad + subtotal + quitar --}}
+                        <div class="flex items-center gap-3 justify-between sm:justify-end">
 
-                        {{-- Subtotal --}}
-                        <p class="font-bold text-slate-700 w-24 text-right hidden sm:block">
-                            ${{ number_format($item['price'] * $item['quantity'], 2, ',', '.') }}
-                        </p>
+                            <form action="{{ route('cart.update', $id) }}" method="POST"
+                                  class="flex items-center">
+                                @csrf @method('PATCH')
+                                <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                                    <button type="submit" name="quantity" value="{{ $item['quantity'] - 1 }}"
+                                            class="px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition font-bold">−</button>
+                                    <span class="px-3 py-1.5 text-sm font-semibold text-slate-700 min-w-[2rem] text-center">
+                                        {{ $item['quantity'] }}
+                                    </span>
+                                    <button type="submit" name="quantity" value="{{ $item['quantity'] + 1 }}"
+                                            class="px-3 py-1.5 text-slate-500 hover:bg-slate-100 transition font-bold">+</button>
+                                </div>
+                            </form>
 
-                        {{-- Quitar --}}
-                        <form action="{{ route('cart.remove', $id) }}" method="POST">
-                            @csrf @method('DELETE')
-                            <button type="submit"
-                                    class="text-red-400 hover:text-red-600 transition p-1" title="Quitar">
-                                <i class="fa-solid fa-trash text-sm"></i>
-                            </button>
-                        </form>
+                            <p class="font-bold text-slate-700 text-right tabular-nums">
+                                ${{ number_format($item['price'] * $item['quantity'], 2, ',', '.') }}
+                            </p>
+
+                            <form action="{{ route('cart.remove', $id) }}" method="POST">
+                                @csrf @method('DELETE')
+                                <button type="submit"
+                                        class="text-red-400 hover:text-red-600 transition p-1" title="Quitar">
+                                    <i class="fa-solid fa-trash text-sm"></i>
+                                </button>
+                            </form>
+
+                        </div>
                     </div>
                 @endforeach
 
