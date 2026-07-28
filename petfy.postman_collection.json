@@ -1,0 +1,214 @@
+{
+  "info": {
+    "_postman_id": "d4e7f2a1-3b8c-4e91-a2d6-7f9c0e1b5a3d",
+    "name": "PetFy API",
+    "description": "Colección de endpoints REST de PetFy Pet Shop.\n\nConfigurar la variable `base_url` con la URL base del servidor (por defecto: http://localhost:8000).\n\nPara el endpoint GET /api/orders, el usuario debe estar autenticado vía sesión web. Copiar la cookie `laravel_session` del navegador al header Cookie de Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /api/products — Listar productos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Content-Type es application/json\", function () {",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+              "});",
+              "",
+              "pm.test(\"La respuesta tiene propiedad 'data' con array de productos\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('data');",
+              "    pm.expect(json.data).to.be.an('array');",
+              "});",
+              "",
+              "pm.test(\"La respuesta tiene paginación\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('total');",
+              "    pm.expect(json).to.have.property('per_page');",
+              "    pm.expect(json).to.have.property('current_page');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/products",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products"]
+        },
+        "description": "Devuelve el catálogo de productos activos paginado (15 por página), con sus categorías incluidas."
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/products/{id} — Detalle de producto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Content-Type es application/json\", function () {",
+              "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+              "});",
+              "",
+              "pm.test(\"El producto tiene los campos esperados\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json).to.have.property('name');",
+              "    pm.expect(json).to.have.property('price');",
+              "    pm.expect(json).to.have.property('categories');",
+              "    pm.expect(json.categories).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/products/1",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products", "1"]
+        },
+        "description": "Devuelve el detalle de un producto activo por su ID, incluyendo categorías y reseñas con datos del autor."
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/products/{id} — 404 producto inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"La respuesta tiene mensaje de error\", function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('message');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/products/99999",
+          "host": ["{{base_url}}"],
+          "path": ["api", "products", "99999"]
+        },
+        "description": "Verifica que un ID inexistente devuelve 404."
+      },
+      "response": []
+    },
+    {
+      "name": "GET /api/orders — Pedidos del usuario autenticado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200 o 401\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 302]);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    pm.test(\"La respuesta es un array de pedidos\", function () {",
+              "        const json = pm.response.json();",
+              "        pm.expect(json).to.be.an('array');",
+              "    });",
+              "",
+              "    pm.test(\"Cada pedido tiene los campos esperados\", function () {",
+              "        const json = pm.response.json();",
+              "        if (json.length > 0) {",
+              "            pm.expect(json[0]).to.have.property('id');",
+              "            pm.expect(json[0]).to.have.property('status');",
+              "            pm.expect(json[0]).to.have.property('total');",
+              "            pm.expect(json[0]).to.have.property('items');",
+              "        }",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Cookie",
+            "value": "laravel_session={{session_cookie}}",
+            "type": "text",
+            "description": "Copiar el valor de la cookie laravel_session del navegador después de iniciar sesión"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/orders",
+          "host": ["{{base_url}}"],
+          "path": ["api", "orders"]
+        },
+        "description": "Devuelve los pedidos del usuario autenticado. Requiere sesión web activa: copiar la cookie `laravel_session` del navegador al header Cookie."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "URL base del servidor Laravel"
+    },
+    {
+      "key": "session_cookie",
+      "value": "",
+      "type": "string",
+      "description": "Valor de la cookie laravel_session (copiar del navegador tras iniciar sesión)"
+    }
+  ]
+}
