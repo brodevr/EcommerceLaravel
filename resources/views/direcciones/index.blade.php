@@ -35,11 +35,11 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-3 flex-shrink-0">
-                    <a href="{{ route('direcciones.edit', $address) }}"
+                    <a href="{{ route('direcciones.edit', ['address' => $address]) }}"
                        class="text-petfy hover:text-petfy-dark transition" title="Editar">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <form action="{{ route('direcciones.destroy', $address) }}" method="POST"
+                    <form action="{{ route('direcciones.destroy', ['address' => $address]) }}" method="POST"
                           onsubmit="return confirm('¿Eliminar esta dirección?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">

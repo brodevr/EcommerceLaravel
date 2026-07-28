@@ -11,7 +11,7 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow p-6">
-        <form action="{{ route('admin.categorias.update', $category) }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.categorias.update', ['category' => $category]) }}" method="POST" class="space-y-4">
             @csrf @method('PUT')
 
             <div>

@@ -27,11 +27,11 @@
                 <p class="text-petfy font-bold text-lg mt-3">{{ $producto->formatted_price }}</p>
 
                 <div class="mt-3 flex gap-2">
-                    <a href="{{ route('products.show', $producto) }}"
+                    <a href="{{ route('products.show', ['product' => $producto]) }}"
                        class="flex-1 text-center bg-petfy text-white rounded-lg py-2 hover:bg-petfy-dark transition text-sm font-medium">
                         Ver producto
                     </a>
-                    <form action="{{ route('wishlist.destroy', $producto) }}" method="POST">
+                    <form action="{{ route('wishlist.destroy', ['product' => $producto]) }}" method="POST">
                         @csrf @method('DELETE')
                         <button type="submit"
                                 class="px-3 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition text-sm">

@@ -22,7 +22,7 @@
 
         <div class="mt-4">
             <x-input-label for="password" value="Contraseña" />
-            <x-text-input id="password" type="password" name="password"
+            <x-password-input id="password" name="password"
                           required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password')" />
             <p class="mt-1 text-xs text-slate-400">
@@ -32,7 +32,7 @@
 
         <div class="mt-4">
             <x-input-label for="password_confirmation" value="Confirmar contraseña" />
-            <x-text-input id="password_confirmation" type="password"
+            <x-password-input id="password_confirmation"
                           name="password_confirmation"
                           required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password_confirmation')" />

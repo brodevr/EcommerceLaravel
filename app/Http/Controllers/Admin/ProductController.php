@@ -71,9 +71,24 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if ($product->orderItems()->exists()) {
+            return redirect()->route('admin.productos.index')
+                             ->with('error', "No se puede eliminar \"{$product->name}\" porque tiene pedidos asociados. Desactivalo en su lugar para ocultarlo del catálogo.");
+        }
+
         $product->delete();
 
         return redirect()->route('admin.productos.index')
                          ->with('success', 'Producto eliminado correctamente.');
+    }
+
+    public function toggleActive(Product $product)
+    {
+        $product->update(['is_active' => !$product->is_active]);
+
+        return redirect()->route('admin.productos.index')
+                         ->with('success', $product->is_active
+                             ? "\"{$product->name}\" activado, ya es visible en el catálogo."
+                             : "\"{$product->name}\" desactivado, ya no es visible en el catálogo.");
     }
 }

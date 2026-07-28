@@ -1,58 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PetFy Pet Shop — Laravel E-commerce
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de e-commerce de productos para mascotas desarrollado con **Laravel 11**, **MySQL** y **Tailwind CSS** como Trabajo Final de la materia Desarrollo de Aplicaciones Web.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Descripción del proyecto y alcance funcional
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+PetFy permite a los visitantes navegar un catálogo de productos para mascotas; a los clientes registrados realizar pedidos, gestionar su wishlist y dejar reseñas; y a los administradores gestionar el catálogo completo, los pedidos y los usuarios. Adicionalmente expone un subconjunto de la funcionalidad como **API REST**.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Fuera del alcance:** pasarela de pago real, envío de emails (driver `log`), notificaciones en tiempo real, autenticación stateless con tokens.
 
-## Learning Laravel
+Ver el relevamiento completo en [`docs/analisis.md`](docs/analisis.md).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación paso a paso
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Requisitos previos
+- PHP 8.2+
+- Composer
+- Node.js 18+
+- MySQL / MariaDB
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Pasos
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clonar el repositorio
+git clone https://github.com/brodevr/EcommerceLaravel.git
+cd EcommerceLaravel
 
-php artisan boost:install
+# 2. Instalar dependencias PHP
+composer install
+
+# 3. Copiar y configurar el entorno
+cp .env.example .env
+php artisan key:generate
+
+# 4. Editar .env con los datos de la base de datos
+#    DB_DATABASE=ecommerce_laravel
+#    DB_USERNAME=root
+#    DB_PASSWORD=
+
+# 5. Ejecutar migraciones y seeders
+php artisan migrate --seed
+
+# 6. Instalar dependencias JS y compilar assets
+npm install && npm run build
+
+# 7. Levantar el servidor
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+La aplicación estará disponible en **`http://localhost:8000`**.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Credenciales de prueba
 
-## Code of Conduct
+| Rol | Email | Contraseña |
+|-----|-------|------------|
+| Administrador | admin@petfy.com | Admin1234 |
+| Cliente | ana@petfy.com | Cliente1234 |
+| Cliente | carlos@petfy.com | Cliente1234 |
+| Cliente | maria@petfy.com | Cliente1234 |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Diagrama E-R
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Ver diagrama completo con Mermaid ERD en [`docs/er-diagram.md`](docs/er-diagram.md).
 
-## License
+```
+users ──1:N──► orders ──1:N──► order_items ◄──N:1── products
+  │                                                      │
+  ├──1:N──► addresses ◄──N:1── orders                   ├──N:M── categories
+  ├──1:N──► reviews ────────────────────────────────────►│
+  └──1:N──► wishlists ──────────────────────────────────►│
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Relaciones principales:**
+- `users` → `orders` (1:N) — un usuario puede tener muchos pedidos
+- `orders` → `order_items` (1:N) — un pedido contiene uno o más ítems con cantidad y precio
+- `products` ↔ `categories` (N:M) — tabla pivote `category_product`
+- `users` → `addresses` (1:N) — múltiples direcciones de envío por usuario
+- `orders` → `addresses` (N:1) — el pedido guarda la dirección de envío seleccionada
+- `users` ↔ `products` vía `reviews` (N:M con rating y comment)
+- `users` ↔ `products` vía `wishlists` (N:M simple)
+
+---
+
+## Decisiones de diseño relevantes
+
+- **OrderStatus como Enum PHP 8.1:** el campo `status` de `orders` usa un Enum de Laravel con transiciones válidas declaradas en el modelo. Las transiciones inválidas lanzan `DomainException` en la capa de negocio, no solo en la vista.
+- **"Procesando" en lugar de "Pagado":** el flujo es `pendiente → procesando → enviado → entregado`. Se adoptó "procesando" porque no hay pasarela de pago real; semánticamente equivale a "pago confirmado y en preparación".
+- **Carrito en sesión:** el carrito funciona sin autenticación (sesión PHP). Al hacer checkout se requiere login.
+- **Middleware EnsureUserIsAdmin:** restringe todas las rutas `/admin/*` a usuarios con `role = admin`.
+- **Form Requests para todas las validaciones:** ningún controller valida inline; toda la lógica de validación está en clases `FormRequest`.
+- **API REST con sesión web:** los endpoints `/api/*` reutilizan la autenticación de sesión del sitio (no requieren Sanctum). Es suficiente para el alcance de la materia.
+- **Tailwind CSS via Vite:** el CSS se compila con `npm run build`. Para entornos compartidos por ngrok, siempre usar el build de producción (no `npm run dev`).
+
+---
+
+## Rutas principales del sitio
+
+| Método | Ruta | Descripción | Autenticación |
+|--------|------|-------------|---------------|
+| GET | `/` | Página de inicio | — |
+| GET | `/productos` | Catálogo de productos | — |
+| GET | `/productos/{product}` | Detalle de producto | — |
+| GET | `/categorias/{category}` | Productos por categoría | — |
+| GET | `/carrito` | Ver carrito | — |
+| POST | `/carrito/agregar/{product}` | Agregar al carrito | — |
+| GET | `/nosotros` | Página institucional | — |
+| GET | `/contacto` | Formulario de contacto | — |
+| GET | `/wishlist` | Lista de deseos | auth |
+| GET | `/checkout` | Confirmar pedido | auth |
+| POST | `/pedidos` | Crear pedido | auth |
+| GET | `/pedidos` | Mis pedidos | auth |
+| GET | `/pedidos/{order}` | Detalle de pedido | auth |
+| POST | `/productos/{product}/resenas` | Dejar reseña | auth |
+| GET/POST/PUT/DELETE | `/direcciones` | Gestión de direcciones | auth |
+| GET | `/profile` | Editar perfil | auth |
+| GET | `/admin/productos` | Panel — Productos | auth + admin |
+| GET | `/admin/categorias` | Panel — Categorías | auth + admin |
+| GET | `/admin/pedidos` | Panel — Pedidos | auth + admin |
+| GET | `/admin/usuarios` | Panel — Usuarios | auth + admin |
+| GET | `/admin/reportes` | Panel — Reportes | auth + admin |
+
+---
+
+## Endpoints de la API REST
+
+| Método | Endpoint | Descripción | Autenticación |
+|--------|----------|-------------|---------------|
+| GET | `/api/products` | Listado paginado de productos activos con categorías | — |
+| GET | `/api/products/{id}` | Detalle de producto con categorías y reseñas | — |
+| GET | `/api/orders` | Pedidos del usuario autenticado con ítems | Sesión web |
+
+Los endpoints devuelven JSON con los códigos HTTP correspondientes (200, 404, 401).
+
+Para probar con **Postman**: importar `petfy-api.postman_collection.json`. Para el endpoint de pedidos, copiar la cookie `laravel_session` del navegador al header `Cookie` de Postman luego de iniciar sesión.
+
+---
+
+## Estructura del proyecto
+
+```
+app/
+├── Enums/          — OrderStatus, Role
+├── Http/
+│   ├── Controllers/
+│   │   ├── Admin/  — Panel de administración
+│   │   └── Api/    — Endpoints REST (ProductController, OrderController)
+│   ├── Middleware/ — EnsureUserIsAdmin
+│   └── Requests/   — Form Requests para todas las validaciones
+├── Models/         — User, Product, Category, Order, OrderItem, Review, Wishlist, Address
+└── Policies/       — OrderPolicy (autoriza acceso al pedido propio)
+database/
+├── factories/      — UserFactory, ProductFactory, CategoryFactory, OrderFactory, AddressFactory, ReviewFactory
+├── migrations/     — Todas las tablas con claves foráneas y onDelete
+└── seeders/        — CategorySeeder, ProductSeeder, UserSeeder (admin + clientes + pedidos)
+docs/
+├── analisis.md     — Relevamiento de requisitos (actores, RF, RNF, casos de uso, alcance)
+└── er-diagram.md   — Diagrama Entidad-Relación (Mermaid ERD)
+routes/
+├── web.php         — Rutas web (públicas, cliente, admin)
+└── api.php         — Endpoints REST
+petfy-api.postman_collection.json — Colección de Postman con pm.test()
+```

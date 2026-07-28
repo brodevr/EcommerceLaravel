@@ -31,7 +31,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-center">
-                            <a href="{{ route('orders.show', $order) }}"
+                            <a href="{{ route('orders.show', ['order' => $order]) }}"
                                class="text-petfy hover:text-petfy-dark transition">
                                 <i class="fa-solid fa-eye"></i>
                             </a>

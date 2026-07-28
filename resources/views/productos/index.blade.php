@@ -58,7 +58,7 @@
                     {{ $product->formatted_price }}
                 </p>
                 <div class="mt-3 flex gap-2">
-                    <a href="{{ route('products.show', $product) }}"
+                    <a href="{{ route('products.show', ['product' => $product]) }}"
                        class="flex-1 text-center bg-petfy text-white rounded-lg py-2 hover:bg-petfy-dark transition font-medium text-sm">
                         Ver producto
                     </a>

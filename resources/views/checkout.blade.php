@@ -11,6 +11,22 @@
         <h1 class="text-2xl font-bold text-petfy-dark">Finalizar pedido</h1>
     </div>
 
+    @if(session('error'))
+        <div class="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm">
+            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @error('address_id')
+        <div class="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 text-sm">
+            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+            <span>{{ $message }}</span>
+        </div>
+    @enderror
+
+    @php $hayCompleta = $addresses->contains(fn ($a) => $a->isComplete()); @endphp
+
     <form action="{{ route('orders.store') }}" method="POST">
         @csrf
 
@@ -27,20 +43,33 @@
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700 flex items-start gap-3">
                             <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
                             <div>
-                                No tenés direcciones guardadas. El pedido se creará sin dirección de envío.
+                                No tenés direcciones guardadas. Necesitás una dirección completa para poder confirmar el pedido.
                                 <a href="{{ route('direcciones.create') }}" class="underline font-semibold ml-1">Agregar dirección</a>
                             </div>
                         </div>
                     @else
+                        @unless($hayCompleta)
+                            <div class="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700 flex items-start gap-3">
+                                <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    Ninguna de tus direcciones está completa. Completá los datos faltantes para poder confirmar el pedido.
+                                </div>
+                            </div>
+                        @endunless
+
                         <div class="space-y-3">
                             @foreach($addresses as $address)
-                                <label class="flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition
-                                              has-[:checked]:border-petfy has-[:checked]:bg-petfy/5 border-slate-200 hover:border-petfy/50">
+                                @php $completa = $address->isComplete(); @endphp
+                                <label class="flex items-start gap-3 border rounded-xl p-4 transition
+                                              {{ $completa
+                                                  ? 'cursor-pointer has-[:checked]:border-petfy has-[:checked]:bg-petfy/5 border-slate-200 hover:border-petfy/50'
+                                                  : 'cursor-not-allowed border-amber-200 bg-amber-50/50' }}">
                                     <input type="radio" name="address_id" value="{{ $address->id }}"
-                                           {{ $address->is_default ? 'checked' : '' }}
-                                           class="mt-1 text-petfy focus:ring-petfy/30 flex-shrink-0">
+                                           {{ $completa && $address->is_default ? 'checked' : '' }}
+                                           {{ $completa ? '' : 'disabled' }}
+                                           class="mt-1 text-petfy focus:ring-petfy/30 flex-shrink-0 disabled:opacity-40">
                                     <div class="flex-1 text-sm">
-                                        <p class="font-semibold text-slate-800">
+                                        <p class="font-semibold {{ $completa ? 'text-slate-800' : 'text-slate-500' }}">
                                             {{ $address->label ?? $address->recipient }}
                                             @if($address->is_default)
                                                 <span class="ml-2 text-xs bg-petfy/10 text-petfy px-2 py-0.5 rounded-full">Principal</span>
@@ -52,6 +81,17 @@
                                         @if($address->phone)
                                             <p class="text-slate-400 text-xs mt-0.5"><i class="fa-solid fa-phone mr-1"></i>{{ $address->phone }}</p>
                                         @endif
+
+                                        @unless($completa)
+                                            <p class="mt-2 text-xs text-amber-700 flex items-start gap-1.5">
+                                                <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                                                <span>
+                                                    Incompleta — falta {{ implode(', ', $address->missingFields()) }}.
+                                                    <a href="{{ route('direcciones.edit', ['address' => $address]) }}"
+                                                       class="underline font-semibold">Completar</a>
+                                                </span>
+                                            </p>
+                                        @endunless
                                     </div>
                                 </label>
                             @endforeach
@@ -107,9 +147,19 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full bg-gradient-to-r from-petfy to-petfy-light text-white font-bold py-3 rounded-xl hover:from-petfy-light hover:to-petfy transition-all duration-300 ease-in-out shadow">
+                            {{ $hayCompleta ? '' : 'disabled' }}
+                            class="w-full font-bold py-3 rounded-xl transition-all duration-300 ease-in-out shadow
+                                   {{ $hayCompleta
+                                       ? 'bg-gradient-to-r from-petfy to-petfy-light text-white hover:from-petfy-light hover:to-petfy'
+                                       : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' }}">
                         <i class="fa-solid fa-check mr-2"></i>Confirmar pedido
                     </button>
+
+                    @unless($hayCompleta)
+                        <p class="mt-3 text-xs text-center text-amber-700">
+                            Necesitás una dirección de envío completa para continuar.
+                        </p>
+                    @endunless
 
                     <a href="{{ route('cart.index') }}"
                        class="mt-3 block text-center text-sm text-slate-400 hover:text-slate-600 transition">

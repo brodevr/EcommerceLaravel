@@ -64,7 +64,7 @@
         @if(count($transitions) > 0)
             <div class="bg-white rounded-2xl shadow p-6">
                 <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Cambiar estado</h2>
-                <form action="{{ route('admin.pedidos.updateStatus', $order) }}" method="POST"
+                <form action="{{ route('admin.pedidos.updateStatus', ['order' => $order]) }}" method="POST"
                       class="flex flex-wrap items-center gap-3">
                     @csrf @method('PATCH')
                     <select name="status"

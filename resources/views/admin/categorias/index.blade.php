@@ -32,11 +32,11 @@
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('admin.categorias.edit', $category) }}"
+                            <a href="{{ route('admin.categorias.edit', ['category' => $category]) }}"
                                class="text-petfy hover:text-petfy-dark transition" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
-                            <form action="{{ route('admin.categorias.destroy', $category) }}" method="POST"
+                            <form action="{{ route('admin.categorias.destroy', ['category' => $category]) }}" method="POST"
                                   onsubmit="return confirm('¿Eliminar esta categoría?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">

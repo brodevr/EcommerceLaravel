@@ -35,7 +35,7 @@
                         {{ $order->created_at->format('d/m/Y H:i') }}
                     </td>
                     <td class="px-4 py-3 text-center">
-                        <a href="{{ route('admin.pedidos.show', $order) }}"
+                        <a href="{{ route('admin.pedidos.show', ['order' => $order]) }}"
                            class="text-petfy hover:text-petfy-dark transition" title="Ver detalle">
                             <i class="fa-solid fa-eye"></i>
                         </a>

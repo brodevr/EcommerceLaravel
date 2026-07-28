@@ -7,7 +7,23 @@
 
     <h1 class="text-2xl font-bold text-petfy-dark">Mi Perfil</h1>
 
-    {{-- Accesos rápidos --}}
+    {{-- Acceso al panel de administración --}}
+    @if(auth()->user()->isAdmin())
+        <a href="{{ route('admin.productos.index') }}"
+           class="flex items-center justify-between bg-petfy-dark text-white rounded-xl px-5 py-4 hover:bg-petfy-dark/90 transition group">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-shield-halved text-xl text-petfy-accent"></i>
+                <div>
+                    <p class="font-semibold text-sm">Panel de administración</p>
+                    <p class="text-xs text-white/70">Productos, categorías, pedidos, usuarios y reportes</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-white/50 group-hover:translate-x-1 transition"></i>
+        </a>
+    @endif
+
+    {{-- Accesos rápidos (solo clientes) --}}
+    @if(!auth()->user()->isAdmin())
     <div class="grid grid-cols-3 gap-3">
         @foreach([
             [route('orders.index'),     'fa-box',          'Mis pedidos'],
@@ -21,6 +37,7 @@
             </a>
         @endforeach
     </div>
+    @endif
 
     {{-- Información personal --}}
     <div class="bg-white rounded-xl border border-slate-200 p-6">

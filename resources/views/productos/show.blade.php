@@ -29,7 +29,7 @@
             {{-- Categorías --}}
             <div class="flex flex-wrap gap-2 mb-3">
                 @foreach($product->categories as $cat)
-                    <a href="{{ route('categories.show', $cat) }}"
+                    <a href="{{ route('categories.show', ['category' => $cat]) }}"
                        class="text-xs font-semibold bg-petfy/10 text-petfy px-3 py-1 rounded-full hover:bg-petfy/20 transition">
                         {{ $cat->name }}
                     </a>
@@ -134,7 +134,7 @@
 
             @auth
                 @if($canReview)
-                    <form action="{{ route('reviews.store', $product) }}" method="POST"
+                    <form action="{{ route('reviews.store', ['product' => $product]) }}" method="POST"
                           class="bg-white rounded-xl shadow p-5 space-y-4">
                         @csrf
 

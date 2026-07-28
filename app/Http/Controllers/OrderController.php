@@ -54,12 +54,31 @@ class OrderController extends Controller
         }
 
         /** @var User $user */
-        $user  = auth()->user();
+        $user = auth()->user();
+
+        $request->validate([
+            'address_id' => 'required|integer',
+        ], [
+            'address_id.required' => 'Tenés que elegir una dirección de envío para confirmar el pedido.',
+        ]);
+
+        $address = $user->addresses()->find($request->integer('address_id'));
+
+        if (! $address) {
+            return back()->with('error', 'La dirección seleccionada no es válida.');
+        }
+
+        if (! $address->isComplete()) {
+            $faltantes = implode(', ', $address->missingFields());
+
+            return back()->with('error', "La dirección seleccionada está incompleta: falta {$faltantes}. Completala antes de confirmar el pedido.");
+        }
+
         $total = collect($cart)->sum(fn ($item) => $item['price'] * $item['quantity']);
 
         $order = Order::create([
             'user_id'             => $user->id,
-            'shipping_address_id' => $request->filled('address_id') ? $request->integer('address_id') : null,
+            'shipping_address_id' => $address->id,
             'status'              => OrderStatus::Pendiente,
             'total'               => $total,
         ]);

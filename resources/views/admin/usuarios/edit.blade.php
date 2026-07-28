@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.usuarios.update', $usuario) }}" class="space-y-5">
+    <form method="POST" action="{{ route('admin.usuarios.update', ['user' => $usuario]) }}" class="space-y-5">
         @csrf
         @method('PATCH')
 

@@ -19,12 +19,13 @@
                 <th class="text-left px-4 py-3 hidden md:table-cell">Categorías</th>
                 <th class="text-right px-4 py-3">Precio</th>
                 <th class="text-right px-4 py-3 hidden sm:table-cell">Stock</th>
+                <th class="text-center px-4 py-3 hidden sm:table-cell">Estado</th>
                 <th class="px-4 py-3">Acciones</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
             @forelse($products as $product)
-                <tr class="hover:bg-slate-50 transition">
+                <tr class="hover:bg-slate-50 transition {{ !$product->is_active ? 'opacity-50' : '' }}">
                     <td class="px-4 py-2">
                         <img src="{{ asset('img/' . $product->image) }}" alt="{{ $product->name }}"
                              class="h-10 w-10 object-cover rounded-lg">
@@ -45,14 +46,24 @@
                             {{ $product->stock }}
                         </span>
                     </td>
+                    <td class="px-4 py-2 text-center hidden sm:table-cell">
+                        <form action="{{ route('admin.productos.toggleActive', ['product' => $product]) }}" method="POST">
+                            @csrf @method('PATCH')
+                            <button type="submit"
+                                    class="text-xs font-semibold px-2.5 py-1 rounded-full transition {{ $product->is_active ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-slate-200 text-slate-500 hover:bg-slate-300' }}"
+                                    title="{{ $product->is_active ? 'Click para desactivar' : 'Click para activar' }}">
+                                {{ $product->is_active ? 'Activo' : 'Inactivo' }}
+                            </button>
+                        </form>
+                    </td>
                     <td class="px-4 py-2">
                         <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('admin.productos.edit', $product) }}"
+                            <a href="{{ route('admin.productos.edit', ['product' => $product]) }}"
                                class="text-petfy hover:text-petfy-dark transition" title="Editar">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
-                            <form action="{{ route('admin.productos.destroy', $product) }}" method="POST"
-                                  onsubmit="return confirm('¿Eliminar este producto?')">
+                            <form action="{{ route('admin.productos.destroy', ['product' => $product]) }}" method="POST"
+                                  onsubmit="return confirm('¿Eliminar este producto?\n\nSi tiene pedidos asociados no se podrá eliminar; usá el estado Activo/Inactivo en su lugar.')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-red-400 hover:text-red-600 transition" title="Eliminar">
                                     <i class="fa-solid fa-trash"></i>
@@ -63,7 +74,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-slate-400">
+                    <td colspan="7" class="px-4 py-8 text-center text-slate-400">
                         No hay productos registrados.
                     </td>
                 </tr>

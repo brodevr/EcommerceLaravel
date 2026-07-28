@@ -74,12 +74,12 @@
                 </td>
                 <td class="px-4 py-3">
                     <div class="flex items-center justify-center gap-3">
-                        <a href="{{ route('admin.usuarios.edit', $usuario) }}"
+                        <a href="{{ route('admin.usuarios.edit', ['user' => $usuario]) }}"
                            class="text-petfy hover:text-petfy-dark transition" title="Editar">
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         @if(auth()->id() !== $usuario->id)
-                            <form method="POST" action="{{ route('admin.usuarios.destroy', $usuario) }}"
+                            <form method="POST" action="{{ route('admin.usuarios.destroy', ['user' => $usuario]) }}"
                                   onsubmit="return confirm('¿Eliminar a {{ addslashes($usuario->name) }}?\n\nEsta acción también borrará todos sus pedidos y no se puede deshacer.')">
                                 @csrf
                                 @method('DELETE')

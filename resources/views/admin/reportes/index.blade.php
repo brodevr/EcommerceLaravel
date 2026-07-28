@@ -117,7 +117,7 @@
                 @else
                     <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
                 @endif
-                <a href="{{ route('admin.productos.edit', $producto) }}"
+                <a href="{{ route('admin.productos.edit', ['product' => $producto]) }}"
                    class="text-sm font-medium text-slate-700 hover:text-petfy transition">
                     {{ $producto->name }}
                 </a>

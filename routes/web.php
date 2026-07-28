@@ -80,7 +80,9 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('productos', \App\Http\Controllers\Admin\ProductController::class);
+    Route::resource('productos', \App\Http\Controllers\Admin\ProductController::class)
+        ->parameters(['productos' => 'product']);
+    Route::patch('/productos/{product}/estado', [\App\Http\Controllers\Admin\ProductController::class, 'toggleActive'])->name('productos.toggleActive');
     Route::resource('categorias', \App\Http\Controllers\Admin\CategoryController::class)
         ->parameters(['categorias' => 'category']);
     Route::get('/pedidos', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('pedidos.index');
