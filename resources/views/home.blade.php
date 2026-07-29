@@ -5,9 +5,8 @@
 @section('content')
 
     {{-- BANNER --}}
-    <style>.hero-banner{background-image:url('{{ asset('img/banner.jpg') }}');}</style>
     <section class="hero-banner relative text-white overflow-hidden bg-left md:bg-center"
-             style="background-size:cover;">
+             style="background-image:url('{{ asset('img/banner.jpg') }}');background-size:cover;">
         <div class="absolute inset-0 bg-black/30"></div>
         <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 text-left sm:px-8 sm:py-32 md:py-44">
             <h1 class="text-3xl sm:text-4xl font-extrabold drop-shadow mb-3">
