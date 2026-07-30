@@ -1,2 +1,2 @@
 [deploy]
-deployCommand = "php artisan migrate --force && php artisan db:seed --force"
+startCommand = "php artisan optimize:clear && php artisan migrate --force && php artisan db:seed --force && php artisan optimize && frankenphp run --config /Caddyfile"
